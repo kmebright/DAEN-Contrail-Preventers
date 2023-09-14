@@ -128,9 +128,9 @@ class NOAADataSet():
 def main():
     fp = r'C:\Users\kmebr\Documents\data_analytics_project_fall_2023\DAEN-Contrail-Preventers\data/'
     data = NOAADataSet([fp+file for file in os.listdir(fp)])
-    with pd.ExcelWriter(fp+'all_data.xlsx') as writer:
-        data.meta_df.to_excel(writer, 'weather_balloon_metadata', index=False)
-        data.data_df.to_excel(writer, 'measurements', index=False)
+    print('saving data...')
+    data.meta_df.to_csv(fp+'weather_balloon_metadata.csv', index=False)
+    data.data_df.to_csv(fp+'measurements.csv', index=False)
     print('done!')
 
 main()
