@@ -133,4 +133,5 @@ def main():
     data.data_df.to_csv(fp+'measurements.csv', index=False)
     print('done!')
 
-main()
+if __name__ == "__main__":
+    main()
