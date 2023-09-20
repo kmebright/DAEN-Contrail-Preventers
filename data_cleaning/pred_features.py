@@ -25,7 +25,7 @@ def main(fp, features, dates):
     dates = the dates and times from the images (FORMAT PENDING)
     '''
     df = make_preds(pd.read_csv(fp), features, dates)
-    df.to_csv(r'C:\Users\kmebr\Documents\data_analytics_project_fall_2023\DAEN-Contrail-Preventers\data/output.xlsx', index=False)
+    df.to_csv(r'C:\Users\kmebr\Documents\data_analytics_project_fall_2023\DAEN-Contrail-Preventers\data/output2.xlsx', index=False)
 
 if __name__ == "__main__":
     main('FILE_PATH', ['feature1', 'feature2', 'feature3'], ['date1', 'date2'])
