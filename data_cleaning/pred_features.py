@@ -3,29 +3,52 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 
-def make_preds(df, features, dates):
-    data = []
-    for date in dates:
-        temp = [date]
-        date_use = datetime.strptime(date, '%Y%m%d_%H%M%S') #waiting on final datetime format
-        df_filt = df[(df['YEAR']==date_use.year)&(df['MONTH']==date_use.month)&(df['DAY']==date_use.day)]
+def make_preds(igra, skyimage, features):
+    rh = []
+    temp = []
+    igra['datetime'] = igra['DATE'].apply(lambda x: datetime.strptime(x, '%Y-%m-%d'))
+    igra['YEAR'] = igra['datetime'].apply(lambda x: x.year)
+    igra['MONTH'] = igra['datetime'].apply(lambda x: x.month)
+    igra['DAY'] = igra['datetime'].apply(lambda x: x.day)
+    for date in skyimage['file_name'].values:
+        date_use = datetime.strptime(date.strip('.jpg').lstrip('IMG_'), '%Y%m%d_%H%M%S')
+        df_filt = igra[(igra['YEAR']==date_use.year)&(igra['MONTH']==date_use.month)&(igra['DAY']==date_use.day)]
         x = np.array(df_filt['HOUR'].values).reshape((-1, 1))
+        preds = []
         for feature in features:
             y = np.array(df_filt[feature].values)
             model = LinearRegression()
             model.fit(x, y)
-            temp.append(model.predict(date_use.hour))
-        data.append(temp)
-    return pd.DataFrame(data, columns=['datetime']+features)
+            preds.append(model.predict(np.array(date_use.hour).reshape(1, -1)))
+        rh.append(preds[0][0])
+        temp.append(preds[1][0])
+    skyimage['RH_ICE'] = rh
+    skyimage['TEMP(F)'] = temp
 
-def main(fp, features, dates):
-    '''
-    df = file path to dataframe or actual dataframe (FIGURE OUT HOW TO ADD IN PROCESS)
-    features = the features to be predicted
-    dates = the dates and times from the images (FORMAT PENDING)
-    '''
-    df = make_preds(pd.read_csv(fp), features, dates)
-    df.to_csv(r'C:\Users\kmebr\Documents\data_analytics_project_fall_2023\DAEN-Contrail-Preventers\data/output.xlsx', index=False)
+    return skyimage #pd.DataFrame(data, columns=['datetime']+features)
+
+def main(fp, fp2, features):
+    df = make_preds(pd.read_csv(fp), pd.read_pickle(fp2), features)
+    keep_cols = [col for col in df.columns if '_output' not in col]
+    df = df[keep_cols]
+    df['datetime'] = df['file_name'].apply(lambda x: datetime.strptime(x.strip('.jpg').lstrip('IMG_'), '%Y%m%d_%H%M%S'))
+    df['date'] = df['datetime'].apply(lambda x: x.strftime('%Y-%m-%d'))
+    df['month'] = df['datetime'].apply(lambda x: x.month)
+    df['time'] = df['datetime'].apply(lambda x: x.time)
+    times = pd.read_excel(r'C:\Users\kmebr\Documents\data_analytics_project_fall_2023\DAEN-Contrail-Preventers\data\sunrise_sunset_times.xlsx')
+    times['MONTH'] = times['Month'].apply(lambda x: datetime.strptime(str(x), '%m').month)
+    tod = []
+    for date in df['datetime'].values:
+        date = pd.to_datetime(date)
+        temp = times[times['MONTH']==date.month]
+        if date.time() >= temp['Sunrise'].values[0] and date.time() < temp['Sunset'].values[0]:
+            tod.append('Daytime')
+        else:
+            tod.append('Nighttime')
+    df['Time of Day'] = tod
+    df.drop(columns=['month', 'time'], inplace=True)
+    df.to_csv(r'C:\Users\kmebr\Documents\data_analytics_project_fall_2023\DAEN-Contrail-Preventers\data/output.csv', index=False)
 
 if __name__ == "__main__":
-    main('FILE_PATH', ['feature1', 'feature2', 'feature3'], ['date1', 'date2'])
+    main(r'C:\Users\kmebr\Documents\data_analytics_project_fall_2023\DAEN-Contrail-Preventers\data\igra_noaa_for_pred_map.csv',
+         r'C:\Users\kmebr\Documents\data_analytics_project_fall_2023\DAEN-Contrail-Preventers\data\pred_output.pkl', ['RH_ICE', 'TEMP(F)'])
