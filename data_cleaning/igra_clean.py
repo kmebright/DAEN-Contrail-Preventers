@@ -108,7 +108,7 @@ class NOAADataSet():
                     temp.append(row[s[0]:s[1]])
                 temp.append(row.split()[-1])
                 all_data.append(temp)
-            self.data_df = pd.concat([self.data_df, pd.DataFrame(all_data, columns=cols+['uid'])])
+            self.data_df = pd.concat([self.data_df, pd.DataFrame(all_data, columns=cols+['uid_fk'])])
         print('finished formatting')
         return
 
@@ -125,13 +125,10 @@ class NOAADataSet():
         return
 
 
-def main():
-    fp = r'C:\Users\kmebr\Documents\data_analytics_project_fall_2023\DAEN-Contrail-Preventers\data/'
-    data = NOAADataSet([fp+file for file in os.listdir(fp)])
+def main(fp):
+    data = NOAADataSet([fp+file for file in os.listdir(fp) if '.txt' in file])
     print('saving data...')
-    data.meta_df.to_csv(fp+'weather_balloon_metadata.csv', index=False)
-    data.data_df.to_csv(fp+'measurements.csv', index=False)
+    data.meta_df.to_csv(fp+'igra_metadata.csv', index=False)
+    data.data_df.to_csv(fp+'igra_measurements.csv', index=False)
     print('done!')
-
-if __name__ == "__main__":
-    main()
+    return data.meta_df, data.data_df
