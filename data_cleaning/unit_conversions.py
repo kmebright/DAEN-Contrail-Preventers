@@ -6,11 +6,13 @@ import numpy as np
 def rh_ice_conversion(temp, rh_water):
     temp = temp/10
     try:
-        ln_es_ice = 21.876*(273.15/temp)**(-0.000766)
-        ln_es_water = 17.2693882*(273.15/temp)**(-0.003586)
-        es_ice = math.exp(ln_es_ice)
-        es_water = math.exp(ln_es_water)
-        rh_ice = (rh_water*(es_water/es_ice))*100
+        tst = 373.15
+        t0 = 273.16
+        rh_water*=100 #converting to hPa
+        log_ew = (-7.90298*((tst/temp)-1)) + (5.02808 * math.log10(tst/temp)) - (1.3816e-7 * (10**(11.344*(1-(temp/tst)))-1)) + (8.1328e-3 * (10**(-3.49149*((tst/temp)-1))-1)) + math.log10(1013.25)
+        log_ei = (-9.09718*((t0/temp)-1)) - (3.56654 * math.log10(t0/temp)) + (0.876793*(1-(temp/t0))) + math.log10(6.1173)
+        rh_ice = rh_water*(10**(log_ew))/(10**(log_ei))
+        rh_ice = rh_ice/100
     except:
         rh_ice = np.nan
     return rh_ice
