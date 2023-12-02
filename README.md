@@ -9,7 +9,7 @@ Contrails account for approximately 2% of total anthropogenic global heating. Si
 
 ## Repository Contents
 ### Data
-Several of the data files for this project were too large to be added to the repository. The [NOAA data](https://www.ncei.noaa.gov/products/weather-balloon/integrated-global-radiosonde-archive) is available online and the Sky Image data can be accessed by reaching out to the team. The processed data used for model training and visualization appear in this folder.
+Several of the data files for this project were too large to be added to the repository. The [NOAA data](https://www.ncei.noaa.gov/products/weather-balloon/integrated-global-radiosonde-archive) is available online and the Sky Image data can be accessed by reaching out to the team. The processed data used for model training and visualization appears in this folder
 - data_with_isa.csv: includes International Standard Atmosphere (ISA) temperature along with the NOAA IGRA data
 - output.csv: training data with mapped Sky Image and IGRA data
 
